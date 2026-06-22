@@ -823,26 +823,40 @@ function playCelebrationSound() {
 }
 
 function speak(text) {
-  if (!gameState.soundEnabled) return;
-  try {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'ar-EG';
-      utter.rate = 0.8;
-      utter.pitch = 1.2;
-      // Try Arabic voices
-      const voices = window.speechSynthesis.getVoices();
-      const specificVoice = voices.find(voice => 
-          (voice.lang === 'ar-EG' && voice.name.includes('Hoda')) || // Windows Neural
-          (voice.lang === 'ar-EG' && voice.name.includes('Google')) || // Chrome/Android
-          (voice.lang === 'ar-EG') // Any other explicit Egyptian fallback
-      );
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'ar-EG';
+  utter.rate = 0.8;
+  utter.pitch = 1.2;
 
-      if (specificVoice) utter.voice = specificVoice;
-      window.speechSynthesis.speak(utter);
+  // Define the logic to find and set the voice
+  function setVoiceAndSpeak() {
+    const voices = window.speechSynthesis.getVoices();
+    
+    // Strict fallback chain: 
+    // 1. Windows 'Hoda' 
+    // 2. Google's Chrome/Android voice 
+    // 3. Any ar-EG voice 
+    // 4. Any Arabic voice at all
+    const specificVoice = 
+      voices.find(voice => voice.name.includes('Hoda') && voice.lang === 'ar-EG') ||
+      voices.find(voice => voice.name.includes('Google') && voice.lang === 'ar-EG') ||
+      voices.find(voice => voice.lang === 'ar-EG') ||
+      voices.find(voice => voice.lang.startsWith('ar')); 
+
+    if (specificVoice) {
+      utter.voice = specificVoice;
     }
-  } catch(e) {}
+    
+    window.speechSynthesis.speak(utter);
+  }
+
+  // Check if voices are already loaded. If not, wait for the event.
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.addEventListener('voiceschanged', setVoiceAndSpeak, { once: true });
+  } else {
+    setVoiceAndSpeak();
+  }
 }
 
 // Preload voices
