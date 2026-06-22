@@ -828,7 +828,7 @@ function speak(text) {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'ar-SA';
+      utter.lang = 'ar-EG';
       utter.rate = 0.8;
       utter.pitch = 1.2;
       // Try Arabic voices
