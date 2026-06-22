@@ -833,8 +833,13 @@ function speak(text) {
       utter.pitch = 1.2;
       // Try Arabic voices
       const voices = window.speechSynthesis.getVoices();
-      const arVoice = voices.find(v => v.lang.startsWith('ar'));
-      if (arVoice) utter.voice = arVoice;
+      const specificVoice = voices.find(voice => 
+          (voice.lang === 'ar-EG' && voice.name.includes('Hoda')) || // Windows Neural
+          (voice.lang === 'ar-EG' && voice.name.includes('Google')) || // Chrome/Android
+          (voice.lang === 'ar-EG') // Any other explicit Egyptian fallback
+      );
+
+      if (specificVoice) utter.voice = specificVoice;
       window.speechSynthesis.speak(utter);
     }
   } catch(e) {}
