@@ -823,6 +823,7 @@ function playCelebrationSound() {
 }
 
 function speak(text) {
+  if (!gameState.soundEnabled) return;
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'ar-EG';
